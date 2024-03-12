@@ -1,0 +1,8 @@
+framework module "Pexioswrapper" {
+	header "ref.h"
+    header "Pexioswrapper.objc.h"
+    header "Universe.objc.h"
+    header "Pexioswrapper.h"
+
+    export *
+}
