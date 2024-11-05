@@ -25,15 +25,18 @@ public struct Constraints: Codable {
 public struct Field: Codable, Hashable {
     public let paths: [String]
     public let filter: [String: Any]?
+    public let optional: Bool?
 
     enum CodingKeys: String, CodingKey {
         case paths = "path"
         case filter
+        case optional
     }
 
-    public init(paths: [String], filter: [String: Any]?) {
+    public init(paths: [String], filter: [String: Any]?, optional: Bool?) {
         self.paths = paths
         self.filter = filter
+        self.optional = optional
     }
 
     public init(from decoder: Decoder) throws {
@@ -41,6 +44,7 @@ public struct Field: Codable, Hashable {
         paths = try container.decode([String].self, forKey: .paths)
         let jsonAnyDictionary = try container.decodeIfPresent([String: JSONAny].self, forKey: .filter)
         filter = jsonAnyDictionary?.mapValues { $0.value }
+        optional = try container.decodeIfPresent(Bool.self, forKey: .optional)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -50,6 +54,7 @@ public struct Field: Codable, Hashable {
             let jsonAnyDictionary = filter.mapValues { JSONAny($0) }
             try container.encode(jsonAnyDictionary, forKey: .filter)
         }
+        try container.encode(optional, forKey: .optional)
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -62,11 +67,13 @@ public struct Field: Codable, Hashable {
                 }
             }
         }
+        hasher.combine(optional)
     }
 
     public static func == (lhs: Field, rhs: Field) -> Bool {
         return lhs.paths == rhs.paths &&
-               NSDictionary(dictionary: lhs.filter ?? [:]).isEqual(to: rhs.filter ?? [:])
+        NSDictionary(dictionary: lhs.filter ?? [:]).isEqual(to: rhs.filter ?? [:]) &&
+        lhs.optional == rhs.optional
     }
 }
 
