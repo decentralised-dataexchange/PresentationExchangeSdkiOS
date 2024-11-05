@@ -1,7 +1,6 @@
 import Foundation
 import Sextant
 import JSONSchema
-import Pexioswrapper
 
 /// Match list of credentials against input descriptor and return matched credentials
 /// - Parameters:
@@ -41,7 +40,9 @@ public func matchCredentials(inputDescriptorJson: String, credentials: [String])
                 }
 
                 if !fieldMatched {
-                    credentialMatched = false
+                    if field.optional != true {
+                        credentialMatched = false
+                    }
                     break
                 }
             }
